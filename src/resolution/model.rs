@@ -37,7 +37,7 @@ pub struct KnapsackState {
 #[derive(Debug, Clone)]
 pub struct Knapsack {
     pub instance: KnapsackInstance,
-    order: Vec<usize>,
+    pub order: Vec<usize>,
 }
 
 impl Knapsack {
@@ -97,17 +97,18 @@ impl Problem for Knapsack {
 }
 
 /// This structure implements the Knapsack relaxation
-pub struct KnapsackRelax {
-    pb: Knapsack
+pub struct KnapsackRelax<'a> {
+    pb: Knapsack,
+    compression_bound: Option<CompressedSolutionBound<'a, KnapsackState>>,
 }
 
-impl KnapsackRelax {
-    pub fn new(pb: Knapsack) -> Self {
-        KnapsackRelax { pb }
+impl<'a> KnapsackRelax<'a> {
+    pub fn new(pb: Knapsack, compression_bound: Option<CompressedSolutionBound<'a, KnapsackState>>) -> Self {
+        KnapsackRelax { pb, compression_bound }
     }
 }
 
-impl Relaxation for KnapsackRelax {
+impl<'a> Relaxation for KnapsackRelax<'a> {
     type State = KnapsackState;
 
     fn merge(&self, states: &mut dyn Iterator<Item = &Self::State>) -> Self::State {
@@ -142,7 +143,13 @@ impl Relaxation for KnapsackRelax {
             depth += 1;
         }
 
-        max_profit
+        let mut rub = max_profit;
+
+        if let Some(bound) = &self.compression_bound {
+            rub = rub.min(bound.get_ub(state));
+        }
+
+        rub
     }
 }
 
