@@ -108,7 +108,7 @@ impl<'a> Compression for KnapsackCompression<'a> {
     }
 
     fn compress(&self, state: &KnapsackState) -> KnapsackState {
-        match self.states[state.depth].range((Unbounded, Included(state.capacity))).last() {
+        match self.states[state.depth].range((Included(state.capacity), Unbounded)).next() {
             Some(capacity) => KnapsackState { depth: state.depth, capacity: *capacity },
             None => state.clone(),
         }
