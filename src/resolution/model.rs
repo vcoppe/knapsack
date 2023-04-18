@@ -111,10 +111,13 @@ impl Relaxation for KnapsackRelax {
     type State = KnapsackState;
 
     fn merge(&self, states: &mut dyn Iterator<Item = &Self::State>) -> Self::State {
-        KnapsackState {
-            depth: states.next().map(|s| s.depth).unwrap_or(0),
-            capacity: states.map(|s| s.capacity).max().unwrap_or(self.pb.instance.capacity),
+        let mut capacity = 0;
+        let mut depth = 0;
+        for s in states {
+            capacity = capacity.max(s.capacity);
+            depth = depth.max(s.depth);
         }
+        KnapsackState { depth, capacity }
     }
 
     fn relax(&self, _: &Self::State, _: &Self::State, _:  &Self::State, _: Decision, cost: isize) -> isize {
