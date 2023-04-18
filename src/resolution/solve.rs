@@ -162,6 +162,8 @@ impl Solve {
         let duration = start.elapsed();
 
         let best_value = best_value.map(|v| v).unwrap_or(0);
+        let best_bound = solver.best_upper_bound();
+        let explored = solver.explored();
 
         let mut sol = String::new();
         solver.best_solution().unwrap()
@@ -175,7 +177,9 @@ impl Solve {
         println!("===== results  =====");
         println!("is exact   : {is_exact}");
         println!("best value : {best_value}");
+        println!("best bound : {best_bound}");
         println!("duration   : {:.3} seconds", duration.as_secs_f32());
+        println!("explored   : {explored}");
         println!("solution   : {sol}");
     }
 }
